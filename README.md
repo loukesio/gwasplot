@@ -1,0 +1,66 @@
+# gwasplot <img src="man/figures/logo.png" align="right" height="120" alt="" />
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+**gwasplot** is a [ggplot2](https://ggplot2.tidyverse.org)-based toolkit for
+visualising genome-wide association study (GWAS) results. It aims to make it
+easy to produce publication-ready *and* interactive figures:
+
+- **Linear Manhattan plots** across the genome, with alternating chromosome
+  colours and genome-wide / suggestive significance thresholds.
+- **Per-chromosome plots** to zoom into a region of interest.
+- **Circular (CMplot-style) plots** with support for **multiple concentric
+  trait rings**.
+- **Easy top-marker highlighting** — by threshold, top-N, or named SNPs/genes,
+  with automatic labelling.
+- **Interactive versions** via [ggiraph](https://davidgohel.github.io/ggiraph/)
+  (hover tooltips showing SNP, gene, chromosome, position and p-value).
+- **Companion tables** of the top hits via [gt](https://gt.rstudio.com), in the
+  spirit of [ggvolc](https://github.com/loukesio/ggvolc).
+
+> **Status:** early development. Phase 1 (package scaffold, the
+> `validate_gwas()` data contract, and bundled example data) is in place; the
+> plotting functions are being built next.
+
+## Installation
+
+```r
+# install.packages("devtools")
+devtools::install_github("loukesio/gwasplot")
+```
+
+## The data contract
+
+Every plotting function expects a tidy GWAS data frame. `validate_gwas()`
+standardises one for you — it auto-detects common column names (e.g. `BP` →
+`POS`, `pvalue` → `P`) and returns a clean tibble with `SNP`, `CHR`, `POS`, `P`
+(plus optional `gene` and `trait`).
+
+```r
+library(gwasplot)
+
+df <- data.frame(
+  marker = c("rs1", "rs2", "rs3"),
+  chrom  = c(1, 1, 2),
+  bp     = c(100, 200, 150),
+  pvalue = c(1e-8, 0.2, 3e-3)
+)
+
+validate_gwas(df)
+```
+
+You can override detection explicitly, e.g. `validate_gwas(df, p = "P_BOLT_LMM")`.
+
+## Example data
+
+Two simulated datasets ship with the package:
+
+```r
+data(gwas_example)  # single trait, 22 chromosomes
+data(gwas_multi)    # three traits, for multi-ring circular plots
+```
+
+## License
+
+MIT © gwasplot authors

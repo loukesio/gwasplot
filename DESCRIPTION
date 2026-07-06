@@ -1,0 +1,32 @@
+Package: gwasplot
+Title: Publication-Ready and Interactive Plots for GWAS Results
+Version: 0.0.0.9000
+Authors@R:
+    person("loukesio", email = "loukesio@gmail.com", role = c("aut", "cre"))
+Description: A ggplot2-based toolkit for visualising genome-wide association
+    study (GWAS) results. Provides linear Manhattan plots, per-chromosome
+    plots and circular (CMplot-style) plots with support for multiple
+    concentric trait rings, easy highlighting and labelling of top markers,
+    interactive versions via 'ggiraph', and companion tables of top hits
+    via 'gt'.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.1.0)
+Imports:
+    dplyr,
+    ggplot2,
+    rlang,
+    scales,
+    tibble,
+    tidyr
+Suggests:
+    ggiraph,
+    gt,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+LazyData: true
+URL: https://github.com/loukesio/gwasplot
+BugReports: https://github.com/loukesio/gwasplot/issues
