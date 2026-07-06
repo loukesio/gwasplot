@@ -58,8 +58,8 @@ simulate_gwas <- function(n_chr = 22,
       CHR = chr,
       POS = pos,
       P   = p,
-      gene = paste0("GENE", formatC(match(chr, unique(chr)) * 1000 +
-                                       (pos %% 1000), width = 5, flag = "0"))
+      gene = paste0("GENE", formatC(as.integer(chr * 1000L + (pos %% 1000)),
+                                     width = 5, flag = "0", format = "d"))
     )
   }
 
