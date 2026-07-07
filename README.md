@@ -1,7 +1,9 @@
-# gwasplot <img src="man/figures/logo.png" align="right" height="120" alt="" />
+# gwasplot
 
 <!-- badges: start -->
 <!-- badges: end -->
+
+![Manhattan plot](man/figures/manhattan.png)
 
 **gwasplot** is a [ggplot2](https://ggplot2.tidyverse.org)-based toolkit for
 visualising genome-wide association study (GWAS) results. It aims to make it
@@ -41,6 +43,29 @@ gwas_chromosome(gwas_example, chr = 1, highlight = highlight_top(top_n = 3))
 gwas_circular(gwas_multi, highlight = highlight_top(top_n = 1, by = "trait"))
 ```
 
+### Zoom into a single chromosome
+
+![Single chromosome](man/figures/chromosome.png)
+
+## Circular plots (CMplot-style, multiple rings)
+
+`gwas_circular()` arranges the chromosomes once around a circle and draws each
+trait as its own concentric ring (outermost = first trait).
+
+![Circular multi-trait](man/figures/circular-multi.png)
+
+More variations — per-ring scaling, custom colours, a two-trait comparison, and
+the single-trait collapse:
+
+| | |
+|---|---|
+| ![Per-ring scaling](man/figures/circular-perring.png) | ![Custom colours](man/figures/circular-custom.png) |
+| ![Two-trait comparison](man/figures/circular-two.png) | ![Single trait](man/figures/circular-single.png) |
+
+Useful options: `shared_scale = FALSE` (scale each ring to its own maximum),
+`ideogram = FALSE` (drop the central chromosome band), `colors` (one colour per
+ring), and `label = FALSE` (recommended when highlighting many markers).
+
 ## Interactive plots
 
 Any plot becomes an interactive `ggiraph` widget with `interactive = TRUE` —
@@ -63,6 +88,8 @@ always agree:
 gwas_table(gwas_example, highlight = highlight_top(top_n = 8),
            title = "Top GWAS hits")
 ```
+
+![Top-hits table](man/figures/table.png)
 
 ## Installation
 

@@ -1,0 +1,155 @@
+---
+title: "Getting started with gwasplot"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with gwasplot}
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 4.5,
+  dpi = 96,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+```{r setup}
+library(gwasplot)
+```
+
+**gwasplot** turns a tidy table of GWAS summary statistics into
+publication-ready and interactive figures. This vignette walks through the
+data contract, the three plot types, top-marker highlighting, interactivity,
+and the top-hits table.
+
+## The data contract
+
+Every function expects the four canonical columns `SNP`, `CHR`, `POS` and `P`
+(plus optional `gene` and `trait`). You rarely have to prepare them by hand ---
+`validate_gwas()` auto-detects common column-name aliases and coerces types:
+
+```{r}
+raw <- data.frame(
+  marker = c("rs1", "rs2", "rs3"),
+  chrom  = c(1, 1, 2),
+  bp     = c(100, 200, 150),
+  pvalue = c(1e-8, 0.2, 3e-3)
+)
+validate_gwas(raw)
+```
+
+All the plotting functions call `validate_gwas()` internally, so you can pass
+raw data directly. Two simulated datasets ship with the package:
+
+```{r}
+data(gwas_example)  # single trait, 22 chromosomes
+data(gwas_multi)    # three traits: height, bmi, glucose
+gwas_example
+```
+
+## Manhattan plot
+
+```{r manhattan}
+gwas_manhattan(gwas_example)
+```
+
+Chromosomes are laid end-to-end with alternating colour bands; the solid line
+is the genome-wide threshold (`5e-8`) and the dashed line is the suggestive
+threshold (`1e-5`).
+
+## Highlighting top markers
+
+`highlight_top()` bundles a selection rule that is shared by every plot *and*
+the table, so a figure and its table always agree. Combine any of `top_n`,
+`threshold`, `snps`, `genes`, and `by`:
+
+```{r manhattan-highlight}
+gwas_manhattan(gwas_example, highlight = highlight_top(top_n = 6))
+```
+
+`by` groups before taking `top_n` --- for example, the lead SNP on every
+chromosome:
+
+```{r manhattan-bychr}
+gwas_manhattan(gwas_example, highlight = highlight_top(top_n = 1, by = "CHR"),
+               label = FALSE)
+```
+
+## Zooming into one chromosome
+
+```{r chromosome, fig.width = 7}
+gwas_chromosome(gwas_example, chr = 1, highlight = highlight_top(top_n = 3))
+```
+
+## Circular plots with multiple rings
+
+`gwas_circular()` arranges the chromosomes once around a circle and draws each
+trait as its own concentric ring (outermost = first trait). This is the
+CMplot-style view.
+
+```{r circular, fig.width = 7, fig.height = 6.5}
+gwas_circular(gwas_multi, highlight = highlight_top(top_n = 1, by = "trait"))
+```
+
+Useful options:
+
+* `shared_scale = FALSE` scales each ring to its own maximum (peaks fill the
+  ring) instead of a common scale.
+* `ideogram = FALSE` drops the central chromosome band.
+* `colors` sets one colour per ring.
+
+```{r circular-opts, fig.width = 7, fig.height = 6.5}
+gwas_circular(gwas_multi, shared_scale = FALSE, ideogram = FALSE,
+              colors = c("#0b6e4f", "#e28413", "#8367c7"))
+```
+
+A single-trait frame collapses to one ring automatically:
+
+```{r circular-single, fig.width = 6.5, fig.height = 6.5}
+gwas_circular(gwas_example, highlight = highlight_top(top_n = 1, by = "CHR"))
+```
+
+> **Tip.** When you highlight many markers (e.g. every genome-wide hit via a
+> `threshold`), set `label = FALSE` to avoid a wall of overlapping labels.
+
+## Interactive versions
+
+Pass `interactive = TRUE` to any plot to get a
+[ggiraph](https://davidgohel.github.io/ggiraph/) widget. Hover a point to see
+its SNP, gene, chromosome, position and p-value; scroll to zoom.
+
+```{r interactive, eval = requireNamespace("ggiraph", quietly = TRUE), fig.width = 8}
+gwas_manhattan(gwas_example, highlight = highlight_top(top_n = 6),
+               interactive = TRUE)
+```
+
+## Top-markers table
+
+`gwas_top()` returns the selected markers as a plain tibble, and `gwas_table()`
+formats them as a [gt](https://gt.rstudio.com) table --- positions with
+thousands separators, p-values in scientific notation, and a colour-scaled
+$-\log_{10}(P)$ column.
+
+```{r top}
+gwas_top(gwas_example, highlight = highlight_top(top_n = 5))
+```
+
+```{r table, eval = requireNamespace("gt", quietly = TRUE)}
+gwas_table(gwas_example, highlight = highlight_top(top_n = 8),
+           title = "Top GWAS hits")
+```
+
+Because the table and the plot share `highlight_top()`, you can highlight the
+same markers in both:
+
+```{r paired, eval = FALSE}
+hl <- highlight_top(top_n = 8)
+gwas_manhattan(gwas_example, highlight = hl)   # figure
+gwas_table(gwas_example, highlight = hl)        # matching table
+```
