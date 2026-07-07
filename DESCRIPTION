@@ -29,5 +29,5 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 LazyData: true
-URL: https://github.com/loukesio/gwasplot
+URL: https://github.com/loukesio/gwasplot, https://loukesio.github.io/gwasplot/
 BugReports: https://github.com/loukesio/gwasplot/issues

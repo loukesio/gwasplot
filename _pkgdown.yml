@@ -1,0 +1,41 @@
+url: https://loukesio.github.io/gwasplot/
+
+template:
+  bootstrap: 5
+  bslib:
+    primary: "#2f5c8f"
+
+navbar:
+  structure:
+    left:  [intro, reference, articles]
+    right: [search, github]
+
+reference:
+  - title: Plots
+    desc: The three GWAS plot types.
+    contents:
+      - gwas_manhattan
+      - gwas_chromosome
+      - gwas_circular
+  - title: Top markers and tables
+    desc: Select, tabulate and highlight the strongest associations.
+    contents:
+      - highlight_top
+      - gwas_top
+      - gwas_table
+  - title: Data contract and helpers
+    contents:
+      - validate_gwas
+      - order_chromosomes
+      - simulate_gwas
+      - theme_gwasplot
+  - title: Example datasets
+    contents:
+      - gwas_example
+      - gwas_multi
+
+articles:
+  - title: Get started
+    navbar: ~
+    contents:
+      - gwasplot

@@ -7,3 +7,6 @@ inst/doc
 /doc/
 /Meta/
 .DS_Store
+docs/
+*.Rcheck/
+*.tar.gz

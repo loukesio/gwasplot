@@ -6,3 +6,9 @@
 ^\.github$
 ^raw_code_v002\.R$
 ^\.claude$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^Makefile$
+^\.Rcheck$
+^gwasplot_.*\.tar\.gz$

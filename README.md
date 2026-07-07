@@ -1,7 +1,11 @@
 # gwasplot
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/loukesio/gwasplot/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/loukesio/gwasplot/actions/workflows/R-CMD-check.yaml)
+[![pkgdown](https://github.com/loukesio/gwasplot/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/loukesio/gwasplot/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
+
+📖 **Documentation & vignette:** <https://loukesio.github.io/gwasplot/>
 
 ![Manhattan plot](man/figures/manhattan.png)
 
