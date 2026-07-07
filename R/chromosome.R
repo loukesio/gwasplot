@@ -10,8 +10,11 @@
 #' @param xlim Optional numeric length-2 base-pair window `c(start, end)` to
 #'   restrict the region shown.
 #' @param point_color Colour for the (non-highlighted) points.
+#' @param interactive Logical; if `TRUE`, return an interactive `girafe`
+#'   widget with hover tooltips (requires \pkg{ggiraph}).
 #'
-#' @return A [ggplot2::ggplot] object.
+#' @return A [ggplot2::ggplot] object, or a [ggiraph::girafe()] htmlwidget when
+#'   `interactive = TRUE`.
 #' @seealso [gwas_manhattan()], [highlight_top()]
 #' @export
 #'
@@ -31,6 +34,7 @@ gwas_chromosome <- function(data,
                             highlight_color = "#d1422f",
                             point_size = 1.4,
                             point_alpha = 0.85,
+                            interactive = FALSE,
                             title = NULL,
                             subtitle = NULL) {
   data <- validate_gwas(data)
@@ -58,6 +62,7 @@ gwas_chromosome <- function(data,
 
   sub$neg_log10_p <- -log10(sub$P)
   sub$pos_mb <- sub$POS / 1e6
+  sub$.tooltip <- .tooltip_text(sub)
 
   spec <- .as_highlight(highlight)
   hits <- .apply_highlight(sub, spec)
@@ -65,8 +70,11 @@ gwas_chromosome <- function(data,
   p <- ggplot2::ggplot(
     sub, ggplot2::aes(x = .data$pos_mb, y = .data$neg_log10_p)
   ) +
-    ggplot2::geom_point(colour = point_color, size = point_size,
-                        alpha = point_alpha) +
+    .point_geom(
+      interactive,
+      ggplot2::aes(tooltip = .data$.tooltip, data_id = .data$SNP),
+      colour = point_color, size = point_size, alpha = point_alpha
+    ) +
     ggplot2::scale_y_continuous(
       expand = ggplot2::expansion(mult = c(0.01, 0.08))
     )
@@ -84,8 +92,11 @@ gwas_chromosome <- function(data,
 
   if (nrow(hits) > 0) {
     hits$pos_mb <- hits$POS / 1e6
-    p <- p + ggplot2::geom_point(
-      data = hits, ggplot2::aes(x = .data$pos_mb, y = .data$neg_log10_p),
+    p <- p + .point_geom(
+      interactive,
+      ggplot2::aes(x = .data$pos_mb, y = .data$neg_log10_p,
+                   tooltip = .data$.tooltip, data_id = .data$SNP),
+      data = hits,
       colour = highlight_color, size = point_size * 1.7, alpha = 0.9
     )
     if (isTRUE(label)) {
@@ -99,7 +110,7 @@ gwas_chromosome <- function(data,
     }
   }
 
-  p +
+  p <- p +
     ggplot2::labs(
       x = paste0("Chromosome ", hit_lev, " position (Mb)"),
       y = expression(-log[10](italic(P))),
@@ -107,4 +118,6 @@ gwas_chromosome <- function(data,
       subtitle = subtitle
     ) +
     theme_gwasplot()
+
+  .as_girafe(p, interactive, width_svg = 8, height_svg = 5)
 }

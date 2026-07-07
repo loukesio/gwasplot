@@ -92,10 +92,13 @@
 #' @param r_inner Innermost radius of the ring stack (0-1); the space inside is
 #'   used for the ideogram and labels.
 #' @param ring_gap Radial gap between adjacent rings (0-1).
+#' @param interactive Logical; if `TRUE`, return an interactive `girafe`
+#'   widget with per-point hover tooltips (requires \pkg{ggiraph}).
 #' @param title,subtitle Optional title and subtitle.
 #'
-#' @return A [ggplot2::ggplot] object.
-#' @seealso [gwas_manhattan()], [highlight_top()]
+#' @return A [ggplot2::ggplot] object, or a [ggiraph::girafe()] htmlwidget when
+#'   `interactive = TRUE`.
+#' @seealso [gwas_manhattan()], [gwas_table()], [highlight_top()]
 #' @export
 #'
 #' @examples
@@ -119,6 +122,7 @@ gwas_circular <- function(data,
                           shared_scale = TRUE,
                           r_inner = 0.38,
                           ring_gap = 0.035,
+                          interactive = FALSE,
                           title = NULL,
                           subtitle = NULL) {
   data <- validate_gwas(data)
@@ -172,6 +176,7 @@ gwas_circular <- function(data,
   prepped$r <- inner_v + pmin(frac, 1) * h_v
   prepped$x <- prepped$r * sin(prepped$theta)
   prepped$y <- prepped$r * cos(prepped$theta)
+  prepped$.tooltip <- .tooltip_text(prepped)
 
   # Ring colours.
   pal <- colors %||% c("#2f5c8f", "#1f9e89", "#b5651d", "#7b3f9e",
@@ -208,9 +213,11 @@ gwas_circular <- function(data,
   }
 
   # Data points, coloured by ring/trait.
-  p <- p + ggplot2::geom_point(
+  p <- p + .point_geom(
+    interactive,
+    ggplot2::aes(x = .data$x, y = .data$y, colour = .data$.trait,
+                 tooltip = .data$.tooltip, data_id = .data$SNP),
     data = prepped,
-    ggplot2::aes(x = .data$x, y = .data$y, colour = .data$.trait),
     size = point_size, alpha = point_alpha
   ) +
     ggplot2::scale_colour_manual(values = ring_cols, breaks = traits,
@@ -248,8 +255,11 @@ gwas_circular <- function(data,
   if (!is.null(spec)) {
     hits <- .apply_highlight(prepped, spec)
     if (nrow(hits) > 0) {
-      p <- p + ggplot2::geom_point(
-        data = hits, ggplot2::aes(x = .data$x, y = .data$y),
+      p <- p + .point_geom(
+        interactive,
+        ggplot2::aes(x = .data$x, y = .data$y,
+                     tooltip = .data$.tooltip, data_id = .data$SNP),
+        data = hits,
         colour = highlight_color, size = point_size * 2.2, alpha = 0.95
       )
       if (isTRUE(label)) {
@@ -260,7 +270,7 @@ gwas_circular <- function(data,
     }
   }
 
-  p +
+  p <- p +
     ggplot2::coord_fixed(clip = "off") +
     ggplot2::labs(title = title, subtitle = subtitle) +
     ggplot2::theme_void(base_size = 12) +
@@ -270,4 +280,6 @@ gwas_circular <- function(data,
       plot.subtitle = ggplot2::element_text(colour = "grey30", hjust = 0.5),
       plot.margin = ggplot2::margin(6, 6, 6, 6)
     )
+
+  .as_girafe(p, interactive, width_svg = 7, height_svg = 6.5)
 }

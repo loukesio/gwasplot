@@ -17,6 +17,7 @@ gwas_chromosome(
   highlight_color = "#d1422f",
   point_size = 1.4,
   point_alpha = 0.85,
+  interactive = FALSE,
   title = NULL,
   subtitle = NULL
 )
@@ -53,10 +54,14 @@ markers are drawn in \code{highlight_color}.}
 
 \item{point_size, point_alpha}{Size and alpha of the non-highlighted points.}
 
+\item{interactive}{Logical; if \code{TRUE}, return an interactive \code{girafe}
+widget with hover tooltips (requires \pkg{ggiraph}).}
+
 \item{title, subtitle}{Optional plot title and subtitle.}
 }
 \value{
-A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
+A \link[ggplot2:ggplot]{ggplot2::ggplot} object, or a \code{\link[ggiraph:girafe]{ggiraph::girafe()}} htmlwidget when
+\code{interactive = TRUE}.
 }
 \description{
 Zooms into one chromosome (optionally a base-pair window), plotting

@@ -3,6 +3,8 @@
 export(gwas_chromosome)
 export(gwas_circular)
 export(gwas_manhattan)
+export(gwas_table)
+export(gwas_top)
 export(highlight_top)
 export(order_chromosomes)
 export(simulate_gwas)

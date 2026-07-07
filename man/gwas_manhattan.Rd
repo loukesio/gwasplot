@@ -16,6 +16,7 @@ gwas_manhattan(
   point_size = 1,
   point_alpha = 0.8,
   ylim = NULL,
+  interactive = FALSE,
   title = NULL,
   subtitle = NULL
 )
@@ -49,10 +50,15 @@ markers are drawn in \code{highlight_color}.}
 \item{ylim}{Optional numeric length-2 y-axis limit on the
 \eqn{-\log_{10}(P)} scale.}
 
+\item{interactive}{Logical; if \code{TRUE}, points carry hover tooltips (SNP,
+gene, chromosome, position, p-value) and the plot is returned as an
+interactive \code{girafe} widget. Requires the \pkg{ggiraph} package.}
+
 \item{title, subtitle}{Optional plot title and subtitle.}
 }
 \value{
-A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
+A \link[ggplot2:ggplot]{ggplot2::ggplot} object, or a \code{\link[ggiraph:girafe]{ggiraph::girafe()}} htmlwidget when
+\code{interactive = TRUE}.
 }
 \description{
 Draws a classic linear Manhattan plot: \eqn{-\log_{10}(P)} against genome
@@ -66,5 +72,6 @@ gwas_manhattan(gwas_example)
 gwas_manhattan(gwas_example, highlight = highlight_top(top_n = 5))
 }
 \seealso{
-\code{\link[=highlight_top]{highlight_top()}}, \code{\link[=gwas_chromosome]{gwas_chromosome()}}, \code{\link[=theme_gwasplot]{theme_gwasplot()}}
+\code{\link[=highlight_top]{highlight_top()}}, \code{\link[=gwas_chromosome]{gwas_chromosome()}}, \code{\link[=gwas_table]{gwas_table()}},
+\code{\link[=theme_gwasplot]{theme_gwasplot()}}
 }

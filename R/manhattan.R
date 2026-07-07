@@ -23,10 +23,15 @@
 #' @param point_size,point_alpha Size and alpha of the non-highlighted points.
 #' @param ylim Optional numeric length-2 y-axis limit on the
 #'   \eqn{-\log_{10}(P)} scale.
+#' @param interactive Logical; if `TRUE`, points carry hover tooltips (SNP,
+#'   gene, chromosome, position, p-value) and the plot is returned as an
+#'   interactive `girafe` widget. Requires the \pkg{ggiraph} package.
 #' @param title,subtitle Optional plot title and subtitle.
 #'
-#' @return A [ggplot2::ggplot] object.
-#' @seealso [highlight_top()], [gwas_chromosome()], [theme_gwasplot()]
+#' @return A [ggplot2::ggplot] object, or a [ggiraph::girafe()] htmlwidget when
+#'   `interactive = TRUE`.
+#' @seealso [highlight_top()], [gwas_chromosome()], [gwas_table()],
+#'   [theme_gwasplot()]
 #' @export
 #'
 #' @examples
@@ -44,10 +49,12 @@ gwas_manhattan <- function(data,
                            point_size = 1,
                            point_alpha = 0.8,
                            ylim = NULL,
+                           interactive = FALSE,
                            title = NULL,
                            subtitle = NULL) {
   data <- validate_gwas(data)
   prepped <- .prepare_manhattan(data)
+  prepped$.tooltip <- .tooltip_text(prepped)
   centers <- attr(prepped, "chr_centers")
   label_by <- match.arg(label_by)
 
@@ -58,8 +65,10 @@ gwas_manhattan <- function(data,
     prepped,
     ggplot2::aes(x = .data$cum_pos, y = .data$neg_log10_p)
   ) +
-    ggplot2::geom_point(
-      ggplot2::aes(colour = .data$chr_band),
+    .point_geom(
+      interactive,
+      ggplot2::aes(colour = .data$chr_band,
+                   tooltip = .data$.tooltip, data_id = .data$SNP),
       size = point_size, alpha = point_alpha
     ) +
     ggplot2::scale_colour_manual(values = c(`TRUE` = colors[1],
@@ -88,9 +97,11 @@ gwas_manhattan <- function(data,
 
   # Highlighted markers + labels.
   if (nrow(hits) > 0) {
-    p <- p + ggplot2::geom_point(
+    p <- p + .point_geom(
+      interactive,
+      ggplot2::aes(x = .data$cum_pos, y = .data$neg_log10_p,
+                   tooltip = .data$.tooltip, data_id = .data$SNP),
       data = hits,
-      ggplot2::aes(x = .data$cum_pos, y = .data$neg_log10_p),
       colour = highlight_color, size = point_size * 1.9, alpha = 0.9
     )
     if (isTRUE(label)) {
@@ -104,7 +115,7 @@ gwas_manhattan <- function(data,
     }
   }
 
-  p +
+  p <- p +
     ggplot2::labs(
       x = "Chromosome",
       y = expression(-log[10](italic(P))),
@@ -113,4 +124,6 @@ gwas_manhattan <- function(data,
     ) +
     (if (!is.null(ylim)) ggplot2::coord_cartesian(ylim = ylim) else NULL) +
     theme_gwasplot()
+
+  .as_girafe(p, interactive, width_svg = 10, height_svg = 5)
 }

@@ -19,6 +19,7 @@ gwas_circular(
   shared_scale = TRUE,
   r_inner = 0.38,
   ring_gap = 0.035,
+  interactive = FALSE,
   title = NULL,
   subtitle = NULL
 )
@@ -60,10 +61,14 @@ used for the ideogram and labels.}
 
 \item{ring_gap}{Radial gap between adjacent rings (0-1).}
 
+\item{interactive}{Logical; if \code{TRUE}, return an interactive \code{girafe}
+widget with per-point hover tooltips (requires \pkg{ggiraph}).}
+
 \item{title, subtitle}{Optional title and subtitle.}
 }
 \value{
-A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
+A \link[ggplot2:ggplot]{ggplot2::ggplot} object, or a \code{\link[ggiraph:girafe]{ggiraph::girafe()}} htmlwidget when
+\code{interactive = TRUE}.
 }
 \description{
 Draws a circular Manhattan plot: chromosomes are arranged once around the
@@ -80,5 +85,5 @@ data(gwas_example)
 gwas_circular(gwas_example)                                 # single ring
 }
 \seealso{
-\code{\link[=gwas_manhattan]{gwas_manhattan()}}, \code{\link[=highlight_top]{highlight_top()}}
+\code{\link[=gwas_manhattan]{gwas_manhattan()}}, \code{\link[=gwas_table]{gwas_table()}}, \code{\link[=highlight_top]{highlight_top()}}
 }

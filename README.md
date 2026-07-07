@@ -19,10 +19,10 @@ easy to produce publication-ready *and* interactive figures:
 - **Companion tables** of the top hits via [gt](https://gt.rstudio.com), in the
   spirit of [ggvolc](https://github.com/loukesio/ggvolc).
 
-> **Status:** early development. The data contract (`validate_gwas()`), the
-> Manhattan and single-chromosome plots (`gwas_manhattan()`,
-> `gwas_chromosome()`) and the multi-ring circular plot (`gwas_circular()`)
-> are in place. Interactive versions and the `gt` top-hits table are next.
+> **Status:** early development, but all the core pieces work: the data
+> contract (`validate_gwas()`), the Manhattan, single-chromosome and multi-ring
+> circular plots, interactive versions via `ggiraph`, and the `gt` top-hits
+> table. A vignette and further polish are next.
 
 ## Quick start
 
@@ -39,6 +39,29 @@ gwas_chromosome(gwas_example, chr = 1, highlight = highlight_top(top_n = 3))
 
 # Circular plot with one concentric ring per trait
 gwas_circular(gwas_multi, highlight = highlight_top(top_n = 1, by = "trait"))
+```
+
+## Interactive plots
+
+Any plot becomes an interactive `ggiraph` widget with `interactive = TRUE` —
+hover a point to see its SNP, gene, chromosome, position and p-value:
+
+```r
+gwas_manhattan(gwas_example, highlight = highlight_top(top_n = 6),
+               interactive = TRUE)
+gwas_circular(gwas_multi, interactive = TRUE)
+```
+
+## Top-markers table
+
+`gwas_table()` builds a publication-ready `gt` table of the top hits (and
+`gwas_top()` returns the same selection as a plain tibble). Because it shares
+the `highlight_top()` selection logic with the plots, a table and a figure
+always agree:
+
+```r
+gwas_table(gwas_example, highlight = highlight_top(top_n = 8),
+           title = "Top GWAS hits")
 ```
 
 ## Installation
