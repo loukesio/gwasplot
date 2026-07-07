@@ -1,0 +1,208 @@
+# gwasplot
+
+📖 **Documentation & vignette:** <https://loukesio.github.io/gwasplot/>
+
+![Manhattan plot](reference/figures/manhattan.png)
+
+Manhattan plot
+
+**gwasplot** is a [ggplot2](https://ggplot2.tidyverse.org)-based toolkit
+for visualising genome-wide association study (GWAS) results. It aims to
+make it easy to produce publication-ready *and* interactive figures:
+
+- **Linear Manhattan plots** across the genome, with alternating
+  chromosome colours and genome-wide / suggestive significance
+  thresholds.
+- **Per-chromosome plots** to zoom into a region of interest.
+- **Circular (CMplot-style) plots** with support for **multiple
+  concentric trait rings**.
+- **Easy top-marker highlighting** — by threshold, top-N, or named
+  SNPs/genes, with automatic labelling.
+- **Interactive versions** via
+  [ggiraph](https://davidgohel.github.io/ggiraph/) (hover tooltips
+  showing SNP, gene, chromosome, position and p-value).
+- **Companion tables** of the top hits via [gt](https://gt.rstudio.com),
+  in the spirit of [ggvolc](https://github.com/loukesio/ggvolc).
+
+> **Status:** early development, but all the core pieces work: the data
+> contract
+> ([`validate_gwas()`](https://loukesio.github.io/gwasplot/reference/validate_gwas.md)),
+> the Manhattan, single-chromosome and multi-ring circular plots,
+> interactive versions via `ggiraph`, and the `gt` top-hits table. A
+> vignette and further polish are next.
+
+## Quick start
+
+``` r
+
+library(gwasplot)
+data(gwas_example)   # single trait
+data(gwas_multi)     # three traits, for circular rings
+
+# Manhattan plot, highlighting the top 6 markers
+gwas_manhattan(gwas_example, highlight = highlight_top(top_n = 6))
+
+# Zoom into a single chromosome
+gwas_chromosome(gwas_example, chr = 1, highlight = highlight_top(top_n = 3))
+
+# Circular plot with one concentric ring per trait
+gwas_circular(gwas_multi, highlight = highlight_top(top_n = 1, by = "trait"))
+```
+
+### Zoom into a single chromosome
+
+![Single chromosome](reference/figures/chromosome.png)
+
+Single chromosome
+
+## Circular plots (CMplot-style, multiple rings)
+
+[`gwas_circular()`](https://loukesio.github.io/gwasplot/reference/gwas_circular.md)
+arranges the chromosomes once around a circle and draws each trait as
+its own concentric ring (outermost = first trait).
+
+![Circular multi-trait](reference/figures/circular-multi.png)
+
+Circular multi-trait
+
+More variations — per-ring scaling, custom colours, a two-trait
+comparison, and the single-trait collapse:
+
+|  |  |
+|----|----|
+| ![Per-ring scaling](reference/figures/circular-perring.png) | ![Custom colours](reference/figures/circular-custom.png) |
+| ![Two-trait comparison](reference/figures/circular-two.png) | ![Single trait](reference/figures/circular-single.png) |
+
+Useful options: `shared_scale = FALSE` (scale each ring to its own
+maximum), `ideogram = FALSE` (drop the central chromosome band),
+`colors` (one colour per ring), and `label = FALSE` (recommended when
+highlighting many markers).
+
+## Interactive plots
+
+Any plot becomes an interactive `ggiraph` widget with
+`interactive = TRUE` — hover a point to see its SNP, gene, chromosome,
+position and p-value:
+
+``` r
+
+gwas_manhattan(gwas_example, highlight = highlight_top(top_n = 6),
+               interactive = TRUE)
+gwas_circular(gwas_multi, interactive = TRUE)
+```
+
+## Top-markers table
+
+[`gwas_table()`](https://loukesio.github.io/gwasplot/reference/gwas_table.md)
+builds a publication-ready `gt` table of the top hits (and
+[`gwas_top()`](https://loukesio.github.io/gwasplot/reference/gwas_top.md)
+returns the same selection as a plain tibble). Because it shares the
+[`highlight_top()`](https://loukesio.github.io/gwasplot/reference/highlight_top.md)
+selection logic with the plots, a table and a figure always agree:
+
+``` r
+
+gwas_table(gwas_example, highlight = highlight_top(top_n = 8),
+           title = "Top GWAS hits")
+```
+
+![Top-hits table](reference/figures/table.png)
+
+Top-hits table
+
+## Installation
+
+``` r
+
+# install.packages("devtools")
+devtools::install_github("loukesio/gwasplot")
+```
+
+## The data contract
+
+Every plotting function expects a tidy GWAS data frame.
+[`validate_gwas()`](https://loukesio.github.io/gwasplot/reference/validate_gwas.md)
+standardises one for you — it auto-detects common column names
+(e.g. `BP` → `POS`, `pvalue` → `P`) and returns a clean tibble with
+`SNP`, `CHR`, `POS`, `P` (plus optional `gene` and `trait`).
+
+``` r
+
+library(gwasplot)
+
+df <- data.frame(
+  marker = c("rs1", "rs2", "rs3"),
+  chrom  = c(1, 1, 2),
+  bp     = c(100, 200, 150),
+  pvalue = c(1e-8, 0.2, 3e-3)
+)
+
+validate_gwas(df)
+```
+
+You can override detection explicitly,
+e.g. `validate_gwas(df, p = "P_BOLT_LMM")`.
+
+## Example data
+
+Two simulated datasets ship with the package:
+
+``` r
+
+data(gwas_example)  # single trait, 22 chromosomes
+data(gwas_multi)    # three traits, for multi-ring circular plots
+```
+
+## License
+
+MIT © gwasplot authors
+
+# Package index
+
+## Plots
+
+The three GWAS plot types.
+
+- [`gwas_manhattan()`](https://loukesio.github.io/gwasplot/reference/gwas_manhattan.md)
+  : Manhattan plot of GWAS results
+- [`gwas_chromosome()`](https://loukesio.github.io/gwasplot/reference/gwas_chromosome.md)
+  : Single-chromosome (regional) plot of GWAS results
+- [`gwas_circular()`](https://loukesio.github.io/gwasplot/reference/gwas_circular.md)
+  : Circular (CMplot-style) plot of GWAS results, with multiple trait
+  rings
+
+## Top markers and tables
+
+Select, tabulate and highlight the strongest associations.
+
+- [`highlight_top()`](https://loukesio.github.io/gwasplot/reference/highlight_top.md)
+  : Specify which top markers to highlight
+- [`gwas_top()`](https://loukesio.github.io/gwasplot/reference/gwas_top.md)
+  : Extract the top GWAS markers as a tidy table
+- [`gwas_table()`](https://loukesio.github.io/gwasplot/reference/gwas_table.md)
+  : A formatted table of the top GWAS markers
+
+## Data contract and helpers
+
+- [`validate_gwas()`](https://loukesio.github.io/gwasplot/reference/validate_gwas.md)
+  : Validate and standardise a GWAS data frame
+- [`order_chromosomes()`](https://loukesio.github.io/gwasplot/reference/order_chromosomes.md)
+  : Order chromosome labels in natural genomic order
+- [`simulate_gwas()`](https://loukesio.github.io/gwasplot/reference/simulate_gwas.md)
+  : Simulate a GWAS summary-statistics data frame
+- [`theme_gwasplot()`](https://loukesio.github.io/gwasplot/reference/theme_gwasplot.md)
+  : A clean theme for gwasplot figures
+
+## Example datasets
+
+- [`gwas_example`](https://loukesio.github.io/gwasplot/reference/gwas_example.md)
+  : Example single-trait GWAS results
+- [`gwas_multi`](https://loukesio.github.io/gwasplot/reference/gwas_multi.md)
+  : Example multi-trait GWAS results
+
+# Articles
+
+### Get started
+
+- [Getting started with
+  gwasplot](https://loukesio.github.io/gwasplot/articles/gwasplot.md):
