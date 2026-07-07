@@ -100,7 +100,7 @@ gwas_manhattan <- function(data,
         "SNP"
       }
       hits$.label <- hits[[lab_col]]
-      p <- p + .label_layer(hits, highlight_color)
+      p <- p + .repel_labels(hits, highlight_color, "cum_pos", "neg_log10_p")
     }
   }
 
@@ -113,28 +113,4 @@ gwas_manhattan <- function(data,
     ) +
     (if (!is.null(ylim)) ggplot2::coord_cartesian(ylim = ylim) else NULL) +
     theme_gwasplot()
-}
-
-# Add a repelled text layer when ggrepel is available, else a plain,
-# overlap-checked geom_text. Keeps ggrepel an optional dependency.
-.label_layer <- function(hits, colour) {
-  if (requireNamespace("ggrepel", quietly = TRUE)) {
-    ggrepel::geom_text_repel(
-      data = hits,
-      ggplot2::aes(x = .data$cum_pos, y = .data$neg_log10_p,
-                   label = .data$.label),
-      colour = colour, size = 3, fontface = "bold",
-      min.segment.length = 0, max.overlaps = Inf,
-      segment.colour = "grey60", segment.size = 0.3,
-      box.padding = 0.4, seed = 1
-    )
-  } else {
-    ggplot2::geom_text(
-      data = hits,
-      ggplot2::aes(x = .data$cum_pos, y = .data$neg_log10_p,
-                   label = .data$.label),
-      colour = colour, size = 3, fontface = "bold",
-      vjust = -0.8, check_overlap = TRUE
-    )
-  }
 }

@@ -95,7 +95,7 @@ gwas_chromosome <- function(data,
         "SNP"
       }
       hits$.label <- hits[[lab_col]]
-      p <- p + .label_layer_xy(hits, highlight_color)
+      p <- p + .repel_labels(hits, highlight_color, "pos_mb", "neg_log10_p")
     }
   }
 
@@ -107,27 +107,4 @@ gwas_chromosome <- function(data,
       subtitle = subtitle
     ) +
     theme_gwasplot()
-}
-
-# Label layer keyed on pos_mb (for the single-chromosome x-axis).
-.label_layer_xy <- function(hits, colour) {
-  if (requireNamespace("ggrepel", quietly = TRUE)) {
-    ggrepel::geom_text_repel(
-      data = hits,
-      ggplot2::aes(x = .data$pos_mb, y = .data$neg_log10_p,
-                   label = .data$.label),
-      colour = colour, size = 3, fontface = "bold",
-      min.segment.length = 0, max.overlaps = Inf,
-      segment.colour = "grey60", segment.size = 0.3,
-      box.padding = 0.4, seed = 1
-    )
-  } else {
-    ggplot2::geom_text(
-      data = hits,
-      ggplot2::aes(x = .data$pos_mb, y = .data$neg_log10_p,
-                   label = .data$.label),
-      colour = colour, size = 3, fontface = "bold",
-      vjust = -0.8, check_overlap = TRUE
-    )
-  }
 }

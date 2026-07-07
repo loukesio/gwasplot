@@ -19,9 +19,27 @@ easy to produce publication-ready *and* interactive figures:
 - **Companion tables** of the top hits via [gt](https://gt.rstudio.com), in the
   spirit of [ggvolc](https://github.com/loukesio/ggvolc).
 
-> **Status:** early development. Phase 1 (package scaffold, the
-> `validate_gwas()` data contract, and bundled example data) is in place; the
-> plotting functions are being built next.
+> **Status:** early development. The data contract (`validate_gwas()`), the
+> Manhattan and single-chromosome plots (`gwas_manhattan()`,
+> `gwas_chromosome()`) and the multi-ring circular plot (`gwas_circular()`)
+> are in place. Interactive versions and the `gt` top-hits table are next.
+
+## Quick start
+
+```r
+library(gwasplot)
+data(gwas_example)   # single trait
+data(gwas_multi)     # three traits, for circular rings
+
+# Manhattan plot, highlighting the top 6 markers
+gwas_manhattan(gwas_example, highlight = highlight_top(top_n = 6))
+
+# Zoom into a single chromosome
+gwas_chromosome(gwas_example, chr = 1, highlight = highlight_top(top_n = 3))
+
+# Circular plot with one concentric ring per trait
+gwas_circular(gwas_multi, highlight = highlight_top(top_n = 1, by = "trait"))
+```
 
 ## Installation
 
