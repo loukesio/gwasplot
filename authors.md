@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/loukesio/gwasplot/blob/HEAD/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/loukesio/gwasplot/blob/main/DESCRIPTION)
 
 loukesio (2026). *gwasplot: Publication-Ready and Interactive Plots for
 GWAS Results*. R package version 0.0.0.9000,
