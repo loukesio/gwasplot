@@ -64,6 +64,9 @@ per trait. This is the multi-ring analogue of <code><a href="gwas_manhattan.html
 <span>  r_inner <span class="op">=</span> <span class="fl">0.38</span>,</span>
 <span>  ring_gap <span class="op">=</span> <span class="fl">0.035</span>,</span>
 <span>  interactive <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  big_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  raster <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  max_points <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  subtitle <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -138,6 +141,22 @@ used for the ideogram and labels.</p></dd>
 <dt id="arg-interactive">interactive<a class="anchor" aria-label="anchor" href="#arg-interactive"></a></dt>
 <dd><p>Logical; if <code>TRUE</code>, return an interactive <code>girafe</code>
 widget with per-point hover tooltips (requires <span class="pkg">ggiraph</span>).</p></dd>
+
+
+<dt id="arg-big-data">big_data<a class="anchor" aria-label="anchor" href="#arg-big-data"></a></dt>
+<dd><p>Logical; enable the large-GWAS pipeline — rasterise the
+rings for a static plot (all points kept, via <span class="pkg">scattermore</span>) or thin
+to <code>max_points</code> for an interactive one. See <code><a href="gwas_manhattan.html">gwas_manhattan()</a></code>.</p></dd>
+
+
+<dt id="arg-raster">raster<a class="anchor" aria-label="anchor" href="#arg-raster"></a></dt>
+<dd><p>Logical or <code>NULL</code>; rasterise the point layer. <code>NULL</code> lets
+<code>big_data</code> decide. Requires <span class="pkg">scattermore</span>.</p></dd>
+
+
+<dt id="arg-max-points">max_points<a class="anchor" aria-label="anchor" href="#arg-max-points"></a></dt>
+<dd><p>Optional integer; thin to about this many points with
+<code><a href="thin_gwas.html">thin_gwas()</a></code> before plotting (all hits kept).</p></dd>
 
 
 <dt id="arg-title-subtitle">title, subtitle<a class="anchor" aria-label="anchor" href="#arg-title-subtitle"></a></dt>

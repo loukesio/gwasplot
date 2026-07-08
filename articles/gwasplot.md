@@ -200,12 +200,45 @@ gwas_chromosome(gwas_example, chr = 1, highlight = highlight_top(top_n = 3),
                 interactive = TRUE)
 ```
 
-> **Keeping widgets fast.** Each point becomes an SVG node, so a
-> genome-wide interactive plot of millions of SNPs can be slow or crash
-> the browser. For large studies, either draw a static plot, or thin the
-> non-significant points before making the plot interactive — for
-> example keep every hit with `P < 0.01` plus a random 5% of the rest. A
-> dedicated down-sampling helper for very large GWAS is on the roadmap.
+## Very large studies (millions of SNPs)
+
+A genome-wide study can carry tens of millions of SNPs, which overwhelms
+ggplot2 (one grob per point) and browsers (one SVG node per point). Set
+`big_data = TRUE` to switch on a pipeline built for this:
+
+- the dense **background is rasterised** into a bitmap layer (via
+  [scattermore](https://github.com/exaexa/scattermore)) — *all* points
+  are kept, but render time and file size stay bounded;
+- the **significance lines and highlighted markers stay crisp vectors**
+  on top;
+- when combined with `interactive = TRUE`, only the **highlighted
+  markers** become an interactive layer (they are the only points worth
+  hovering), so the widget never has to hold millions of nodes.
+
+``` r
+
+# `huge` might have 15 million rows
+gwas_manhattan(huge, big_data = TRUE, highlight = highlight_top(top_n = 10))
+
+# hybrid: rasterised background + interactive, labelled top hits
+gwas_manhattan(huge, big_data = TRUE, interactive = TRUE,
+               highlight = highlight_top(top_n = 10))
+```
+
+`big_data = FALSE` (the default) leaves the ordinary vector plot
+completely unchanged. If you would rather reduce the data yourself — for
+a table, or to pass a smaller frame around — \[thin_gwas()\] keeps every
+hit and grid-samples the null background down to a target size:
+
+``` r
+
+big <- simulate_gwas(n_chr = 22, snps_per_chr = 5000, seed = 1)
+nrow(big)
+#> [1] 74250
+small <- thin_gwas(big, max_points = 5000)
+nrow(small)
+#> [1] 5000
+```
 
 ## Top-markers table
 

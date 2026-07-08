@@ -25,6 +25,9 @@ gwas_circular(
   r_inner = 0.38,
   ring_gap = 0.035,
   interactive = FALSE,
+  big_data = FALSE,
+  raster = NULL,
+  max_points = NULL,
   title = NULL,
   subtitle = NULL
 )
@@ -99,6 +102,24 @@ gwas_circular(
 
   Logical; if `TRUE`, return an interactive `girafe` widget with
   per-point hover tooltips (requires ggiraph).
+
+- big_data:
+
+  Logical; enable the large-GWAS pipeline — rasterise the rings for a
+  static plot (all points kept, via scattermore) or thin to `max_points`
+  for an interactive one. See
+  [`gwas_manhattan()`](https://loukesio.github.io/gwasplot/reference/gwas_manhattan.md).
+
+- raster:
+
+  Logical or `NULL`; rasterise the point layer. `NULL` lets `big_data`
+  decide. Requires scattermore.
+
+- max_points:
+
+  Optional integer; thin to about this many points with
+  [`thin_gwas()`](https://loukesio.github.io/gwasplot/reference/thin_gwas.md)
+  before plotting (all hits kept).
 
 - title, subtitle:
 

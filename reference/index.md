@@ -23,6 +23,14 @@ Select, tabulate and highlight the strongest associations.
 - [`gwas_table()`](https://loukesio.github.io/gwasplot/reference/gwas_table.md)
   : A formatted table of the top GWAS markers
 
+## Large studies
+
+Helpers for genome-wide data with millions of SNPs (see the “big_data”
+argument on the plots).
+
+- [`thin_gwas()`](https://loukesio.github.io/gwasplot/reference/thin_gwas.md)
+  : Thin a large GWAS data frame for plotting
+
 ## Data contract and helpers
 
 - [`validate_gwas()`](https://loukesio.github.io/gwasplot/reference/validate_gwas.md)

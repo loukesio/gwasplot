@@ -61,6 +61,9 @@ and top markers can be highlighted and labelled.</p>
 <span>  point_alpha <span class="op">=</span> <span class="fl">0.8</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  interactive <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  big_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  raster <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  max_points <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  subtitle <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -122,6 +125,27 @@ markers are drawn in <code>highlight_color</code>.</p></dd>
 <dd><p>Logical; if <code>TRUE</code>, points carry hover tooltips (SNP,
 gene, chromosome, position, p-value) and the plot is returned as an
 interactive <code>girafe</code> widget. Requires the <span class="pkg">ggiraph</span> package.</p></dd>
+
+
+<dt id="arg-big-data">big_data<a class="anchor" aria-label="anchor" href="#arg-big-data"></a></dt>
+<dd><p>Logical; enable the large-GWAS pipeline (millions of SNPs).
+The dense background is drawn as a rasterised bitmap layer — all points
+kept, via <span class="pkg">scattermore</span> — instead of one grob per point. When
+combined with <code>interactive = TRUE</code>, only the highlighted markers become an
+interactive layer (they are the only points worth hovering), so the widget
+stays light. Leaving <code>big_data = FALSE</code> uses the ordinary vector point
+layer and changes nothing.</p></dd>
+
+
+<dt id="arg-raster">raster<a class="anchor" aria-label="anchor" href="#arg-raster"></a></dt>
+<dd><p>Logical or <code>NULL</code>; draw the points as a rasterised bitmap
+layer (keeps all points, bounded render cost). <code>NULL</code> lets <code>big_data</code>
+decide. Requires <span class="pkg">scattermore</span>.</p></dd>
+
+
+<dt id="arg-max-points">max_points<a class="anchor" aria-label="anchor" href="#arg-max-points"></a></dt>
+<dd><p>Optional integer; if set, the data is thinned to about
+this many points with <code><a href="thin_gwas.html">thin_gwas()</a></code> before plotting (all hits kept).</p></dd>
 
 
 <dt id="arg-title-subtitle">title, subtitle<a class="anchor" aria-label="anchor" href="#arg-title-subtitle"></a></dt>
