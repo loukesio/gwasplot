@@ -215,12 +215,28 @@ ggplot2 (one grob per point) and browsers (one SVG node per point). Set
   markers** become an interactive layer (they are the only points worth
   hovering), so the widget never has to hold millions of nodes.
 
+Here is a real example. `huge` has about a quarter of a million SNPs; on
+your own data you would simply pass a much larger frame. Because the
+background is a bitmap, the figure renders almost instantly and stays a
+small PNG even though every point is drawn — the ten strongest markers
+sit on top as crisp, labelled vector points.
+
 ``` r
 
-# `huge` might have 15 million rows
+huge <- simulate_gwas(n_chr = 22, snps_per_chr = 18000, n_peaks = 20, seed = 5)
+nrow(huge)
+#> [1] 267300
 gwas_manhattan(huge, big_data = TRUE, highlight = highlight_top(top_n = 10))
+```
 
-# hybrid: rasterised background + interactive, labelled top hits
+![](gwasplot_files/figure-html/big-data-1.png)
+
+For an interactive version, add `interactive = TRUE`: the background
+stays a raster while only the highlighted markers carry tooltips, so the
+widget never has to hold millions of nodes.
+
+``` r
+
 gwas_manhattan(huge, big_data = TRUE, interactive = TRUE,
                highlight = highlight_top(top_n = 10))
 ```
@@ -232,10 +248,7 @@ hit and grid-samples the null background down to a target size:
 
 ``` r
 
-big <- simulate_gwas(n_chr = 22, snps_per_chr = 5000, seed = 1)
-nrow(big)
-#> [1] 74250
-small <- thin_gwas(big, max_points = 5000)
+small <- thin_gwas(huge, max_points = 5000)
 nrow(small)
 #> [1] 5000
 ```
