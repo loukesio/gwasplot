@@ -15,29 +15,39 @@
 #'   numeric of tick positions) and `"chr_max"` (cumulative end of each chrom).
 #' @keywords internal
 #' @noRd
-.prepare_manhattan <- function(data, gap = 0.005) {
+.prepare_manhattan <- function(data, gap = 0.005, fast = FALSE) {
   data$CHR <- droplevels(data$CHR)
   chr_levels <- levels(data$CHR)
+  chr_int <- as.integer(data$CHR)          # integer codes: fast, no string ops
 
   # Per-chromosome span; add a small gap between chromosomes.
-  chr_max <- tapply(data$POS, data$CHR, max, na.rm = TRUE)
-  chr_max <- chr_max[chr_levels]
+  chr_max <- .group_max(data$POS, chr_int, length(chr_levels), fast)
+  names(chr_max) <- chr_levels
   total <- sum(chr_max)
   pad <- gap * total
 
   offsets <- c(0, cumsum(chr_max[-length(chr_max)] + pad))
-  names(offsets) <- chr_levels
 
-  data$cum_pos <- data$POS + offsets[as.character(data$CHR)]
+  # Integer-indexed lookups avoid 15M as.character() conversions.
+  data$cum_pos <- data$POS + offsets[chr_int]
   data$neg_log10_p <- -log10(data$P)
-  data$chr_band <- (match(as.character(data$CHR), chr_levels) %% 2L) == 1L
+  data$chr_band <- (chr_int %% 2L) == 1L
 
   centers <- offsets + chr_max / 2
   ends <- offsets + chr_max
+  names(centers) <- chr_levels
+  names(ends) <- chr_levels
 
   attr(data, "chr_centers") <- centers
   attr(data, "chr_ends") <- ends
   data
+}
+
+# Max of `x` within each of `nlev` integer groups, returned in group order.
+# A single tapply is one pass over `x` and handles tens of millions of rows in
+# a couple of seconds. `fast` is accepted for a uniform prep interface.
+.group_max <- function(x, g, nlev, fast = FALSE) {
+  as.numeric(tapply(x, factor(g, levels = seq_len(nlev)), max, na.rm = TRUE))
 }
 
 #' Select top markers from a validated GWAS frame

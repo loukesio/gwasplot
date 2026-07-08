@@ -26,6 +26,18 @@
 #' @param interactive Logical; if `TRUE`, points carry hover tooltips (SNP,
 #'   gene, chromosome, position, p-value) and the plot is returned as an
 #'   interactive `girafe` widget. Requires the \pkg{ggiraph} package.
+#' @param big_data Logical; enable the large-GWAS pipeline (millions of SNPs).
+#'   The dense background is drawn as a rasterised bitmap layer --- all points
+#'   kept, via \pkg{scattermore} --- instead of one grob per point. When
+#'   combined with `interactive = TRUE`, only the highlighted markers become an
+#'   interactive layer (they are the only points worth hovering), so the widget
+#'   stays light. Leaving `big_data = FALSE` uses the ordinary vector point
+#'   layer and changes nothing.
+#' @param raster Logical or `NULL`; draw the points as a rasterised bitmap
+#'   layer (keeps all points, bounded render cost). `NULL` lets `big_data`
+#'   decide. Requires \pkg{scattermore}.
+#' @param max_points Optional integer; if set, the data is thinned to about
+#'   this many points with [thin_gwas()] before plotting (all hits kept).
 #' @param title,subtitle Optional plot title and subtitle.
 #'
 #' @return A [ggplot2::ggplot] object, or a [ggiraph::girafe()] htmlwidget when
@@ -50,13 +62,22 @@ gwas_manhattan <- function(data,
                            point_alpha = 0.8,
                            ylim = NULL,
                            interactive = FALSE,
+                           big_data = FALSE,
+                           raster = NULL,
+                           max_points = NULL,
                            title = NULL,
                            subtitle = NULL) {
   data <- validate_gwas(data)
-  prepped <- .prepare_manhattan(data)
+  label_by <- match.arg(label_by)
+
+  plan <- .resolve_bigdata(big_data, raster, max_points, interactive)
+  if (!is.null(plan$max_points)) {
+    data <- .thin_validated(data, max_points = plan$max_points)
+  }
+
+  prepped <- .prepare_manhattan(data, fast = plan$fast)
   prepped$.tooltip <- .tooltip_text(prepped)
   centers <- attr(prepped, "chr_centers")
-  label_by <- match.arg(label_by)
 
   spec <- .as_highlight(highlight)
   hits <- .apply_highlight(prepped, spec)
@@ -66,10 +87,10 @@ gwas_manhattan <- function(data,
     ggplot2::aes(x = .data$cum_pos, y = .data$neg_log10_p)
   ) +
     .point_geom(
-      interactive,
+      plan$base_interactive,
       ggplot2::aes(colour = .data$chr_band,
                    tooltip = .data$.tooltip, data_id = .data$SNP),
-      size = point_size, alpha = point_alpha
+      size = point_size, alpha = point_alpha, raster = plan$base_raster
     ) +
     ggplot2::scale_colour_manual(values = c(`TRUE` = colors[1],
                                             `FALSE` = colors[2]),
@@ -95,10 +116,11 @@ gwas_manhattan <- function(data,
     )
   }
 
-  # Highlighted markers + labels.
+  # Highlighted markers + labels. For big data these carry the interactivity,
+  # since the rasterised background cannot.
   if (nrow(hits) > 0) {
     p <- p + .point_geom(
-      interactive,
+      plan$highlight_interactive,
       ggplot2::aes(x = .data$cum_pos, y = .data$neg_log10_p,
                    tooltip = .data$.tooltip, data_id = .data$SNP),
       data = hits,
@@ -125,5 +147,5 @@ gwas_manhattan <- function(data,
     (if (!is.null(ylim)) ggplot2::coord_cartesian(ylim = ylim) else NULL) +
     theme_gwasplot()
 
-  .as_girafe(p, interactive, width_svg = 10, height_svg = 5)
+  .as_girafe(p, plan$return_girafe, width_svg = 10, height_svg = 5)
 }

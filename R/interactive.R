@@ -17,17 +17,27 @@
   )
 }
 
-# A point layer that is interactive (ggiraph) when `interactive = TRUE` and
-# ggiraph is installed, otherwise a plain geom_point. `mapping` may include
-# the `tooltip`/`data_id` aesthetics; they are stripped for the static geom.
-.point_geom <- function(interactive, mapping, ...) {
+# A point layer that adapts to the rendering mode:
+#   * interactive = TRUE  -> ggiraph interactive geom (tooltips/hover)
+#   * raster = TRUE        -> scattermore bitmap layer (millions of points)
+#   * otherwise            -> a plain geom_point
+# `mapping` may include the `tooltip`/`data_id` aesthetics; they are stripped
+# for the non-interactive geoms. `size` is translated to scattermore's
+# `pointsize` for the raster path.
+.point_geom <- function(interactive, mapping, ..., raster = FALSE) {
   if (isTRUE(interactive) && requireNamespace("ggiraph", quietly = TRUE)) {
-    ggiraph::geom_point_interactive(mapping = mapping, ...)
-  } else {
-    mapping[["tooltip"]] <- NULL
-    mapping[["data_id"]] <- NULL
-    ggplot2::geom_point(mapping = mapping, ...)
+    return(ggiraph::geom_point_interactive(mapping = mapping, ...))
   }
+  mapping[["tooltip"]] <- NULL
+  mapping[["data_id"]] <- NULL
+  if (isTRUE(raster) && requireNamespace("scattermore", quietly = TRUE)) {
+    dots <- list(...)
+    ps <- if (!is.null(dots$size)) max(1, round(dots$size * 2)) else 1
+    dots$size <- NULL
+    return(do.call(scattermore::geom_scattermore,
+                   c(list(mapping = mapping, pointsize = ps), dots)))
+  }
+  ggplot2::geom_point(mapping = mapping, ...)
 }
 
 # Wrap a finished ggplot as an interactive girafe widget, or return it

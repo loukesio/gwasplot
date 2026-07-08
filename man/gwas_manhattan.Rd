@@ -17,6 +17,9 @@ gwas_manhattan(
   point_alpha = 0.8,
   ylim = NULL,
   interactive = FALSE,
+  big_data = FALSE,
+  raster = NULL,
+  max_points = NULL,
   title = NULL,
   subtitle = NULL
 )
@@ -53,6 +56,21 @@ markers are drawn in \code{highlight_color}.}
 \item{interactive}{Logical; if \code{TRUE}, points carry hover tooltips (SNP,
 gene, chromosome, position, p-value) and the plot is returned as an
 interactive \code{girafe} widget. Requires the \pkg{ggiraph} package.}
+
+\item{big_data}{Logical; enable the large-GWAS pipeline (millions of SNPs).
+The dense background is drawn as a rasterised bitmap layer --- all points
+kept, via \pkg{scattermore} --- instead of one grob per point. When
+combined with \code{interactive = TRUE}, only the highlighted markers become an
+interactive layer (they are the only points worth hovering), so the widget
+stays light. Leaving \code{big_data = FALSE} uses the ordinary vector point
+layer and changes nothing.}
+
+\item{raster}{Logical or \code{NULL}; draw the points as a rasterised bitmap
+layer (keeps all points, bounded render cost). \code{NULL} lets \code{big_data}
+decide. Requires \pkg{scattermore}.}
+
+\item{max_points}{Optional integer; if set, the data is thinned to about
+this many points with \code{\link[=thin_gwas]{thin_gwas()}} before plotting (all hits kept).}
 
 \item{title, subtitle}{Optional plot title and subtitle.}
 }

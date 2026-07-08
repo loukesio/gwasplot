@@ -32,13 +32,14 @@
 #'   `"chr_ang"` (matrix of start/centre/end angles per chromosome).
 #' @keywords internal
 #' @noRd
-.prepare_circular <- function(data, gap = 0.01) {
+.prepare_circular <- function(data, gap = 0.01, fast = FALSE) {
   data$CHR <- droplevels(data$CHR)
   chr_levels <- levels(data$CHR)
 
   # Genome layout uses the max position seen for each chromosome across ALL
   # traits, so every ring shares one angular axis.
-  chr_max <- tapply(data$POS, data$CHR, max, na.rm = TRUE)[chr_levels]
+  chr_max <- .group_max(data$POS, as.integer(data$CHR), length(chr_levels), fast)
+  names(chr_max) <- chr_levels
   n_chr <- length(chr_levels)
   pad <- gap * sum(chr_max)
   total <- sum(chr_max) + n_chr * pad
@@ -94,6 +95,13 @@
 #' @param ring_gap Radial gap between adjacent rings (0-1).
 #' @param interactive Logical; if `TRUE`, return an interactive `girafe`
 #'   widget with per-point hover tooltips (requires \pkg{ggiraph}).
+#' @param big_data Logical; enable the large-GWAS pipeline --- rasterise the
+#'   rings for a static plot (all points kept, via \pkg{scattermore}) or thin
+#'   to `max_points` for an interactive one. See [gwas_manhattan()].
+#' @param raster Logical or `NULL`; rasterise the point layer. `NULL` lets
+#'   `big_data` decide. Requires \pkg{scattermore}.
+#' @param max_points Optional integer; thin to about this many points with
+#'   [thin_gwas()] before plotting (all hits kept).
 #' @param title,subtitle Optional title and subtitle.
 #'
 #' @return A [ggplot2::ggplot] object, or a [ggiraph::girafe()] htmlwidget when
@@ -123,10 +131,18 @@ gwas_circular <- function(data,
                           r_inner = 0.38,
                           ring_gap = 0.035,
                           interactive = FALSE,
+                          big_data = FALSE,
+                          raster = NULL,
+                          max_points = NULL,
                           title = NULL,
                           subtitle = NULL) {
   data <- validate_gwas(data)
   label_by <- match.arg(label_by)
+
+  plan <- .resolve_bigdata(big_data, raster, max_points, interactive)
+  if (!is.null(plan$max_points)) {
+    data <- .thin_validated(data, max_points = plan$max_points)
+  }
 
   # Resolve the ring/trait grouping.
   if (!is.null(trait) && trait %in% names(data)) {
@@ -143,7 +159,7 @@ gwas_circular <- function(data,
       n_ring), call. = FALSE)
   }
 
-  prepped <- .prepare_circular(data)
+  prepped <- .prepare_circular(data, fast = plan$fast)
   chr_ang <- attr(prepped, "chr_ang")
   n_chr <- nrow(chr_ang)
 
@@ -214,11 +230,11 @@ gwas_circular <- function(data,
 
   # Data points, coloured by ring/trait.
   p <- p + .point_geom(
-    interactive,
+    plan$base_interactive,
     ggplot2::aes(x = .data$x, y = .data$y, colour = .data$.trait,
                  tooltip = .data$.tooltip, data_id = .data$SNP),
     data = prepped,
-    size = point_size, alpha = point_alpha
+    size = point_size, alpha = point_alpha, raster = plan$base_raster
   ) +
     ggplot2::scale_colour_manual(values = ring_cols, breaks = traits,
                                  name = NULL)
@@ -256,7 +272,7 @@ gwas_circular <- function(data,
     hits <- .apply_highlight(prepped, spec)
     if (nrow(hits) > 0) {
       p <- p + .point_geom(
-        interactive,
+        plan$highlight_interactive,
         ggplot2::aes(x = .data$x, y = .data$y,
                      tooltip = .data$.tooltip, data_id = .data$SNP),
         data = hits,
@@ -281,5 +297,5 @@ gwas_circular <- function(data,
       plot.margin = ggplot2::margin(6, 6, 6, 6)
     )
 
-  .as_girafe(p, interactive, width_svg = 7, height_svg = 6.5)
+  .as_girafe(p, plan$return_girafe, width_svg = 7, height_svg = 6.5)
 }

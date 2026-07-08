@@ -20,6 +20,9 @@ gwas_circular(
   r_inner = 0.38,
   ring_gap = 0.035,
   interactive = FALSE,
+  big_data = FALSE,
+  raster = NULL,
+  max_points = NULL,
   title = NULL,
   subtitle = NULL
 )
@@ -63,6 +66,16 @@ used for the ideogram and labels.}
 
 \item{interactive}{Logical; if \code{TRUE}, return an interactive \code{girafe}
 widget with per-point hover tooltips (requires \pkg{ggiraph}).}
+
+\item{big_data}{Logical; enable the large-GWAS pipeline --- rasterise the
+rings for a static plot (all points kept, via \pkg{scattermore}) or thin
+to \code{max_points} for an interactive one. See \code{\link[=gwas_manhattan]{gwas_manhattan()}}.}
+
+\item{raster}{Logical or \code{NULL}; rasterise the point layer. \code{NULL} lets
+\code{big_data} decide. Requires \pkg{scattermore}.}
+
+\item{max_points}{Optional integer; thin to about this many points with
+\code{\link[=thin_gwas]{thin_gwas()}} before plotting (all hits kept).}
 
 \item{title, subtitle}{Optional title and subtitle.}
 }
