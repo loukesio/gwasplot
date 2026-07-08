@@ -12,6 +12,8 @@ Useful links:
 
 - <https://github.com/loukesio/gwasplot>
 
+- <https://loukesio.github.io/gwasplot/>
+
 - Report bugs at <https://github.com/loukesio/gwasplot/issues>
 
 ## Author
