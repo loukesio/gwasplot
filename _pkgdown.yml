@@ -23,6 +23,11 @@ reference:
       - highlight_top
       - gwas_top
       - gwas_table
+  - title: Large studies
+    desc: Helpers for genome-wide data with millions of SNPs (see the
+      "big_data" argument on the plots).
+    contents:
+      - thin_gwas
   - title: Data contract and helpers
     contents:
       - validate_gwas
