@@ -3,7 +3,7 @@ title: "Getting started with gwasplot"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting started with gwasplot}
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -118,16 +118,59 @@ gwas_circular(gwas_example, highlight = highlight_top(top_n = 1, by = "CHR"))
 > **Tip.** When you highlight many markers (e.g. every genome-wide hit via a
 > `threshold`), set `label = FALSE` to avoid a wall of overlapping labels.
 
-## Interactive versions
+## Interactive plots
 
-Pass `interactive = TRUE` to any plot to get a
-[ggiraph](https://davidgohel.github.io/ggiraph/) widget. Hover a point to see
-its SNP, gene, chromosome, position and p-value; scroll to zoom.
+Pass `interactive = TRUE` to any of the three plots to turn it into a
+[ggiraph](https://davidgohel.github.io/ggiraph/) htmlwidget. Every point then
+carries a hover tooltip with its **SNP, gene, chromosome, position and
+p-value**; you can also **scroll to zoom** and **drag to pan**, and hovering
+highlights the point. This works in HTML output such as this vignette, an R
+Markdown / Quarto report, or a Shiny app.
 
-```{r interactive, eval = requireNamespace("ggiraph", quietly = TRUE), fig.width = 8}
-gwas_manhattan(gwas_example, highlight = highlight_top(top_n = 6),
+### Interactive Manhattan
+
+Hover any peak to read off the exact marker behind it --- no need to squint at
+labels or cross-reference a table. Because an interactive plot turns every point
+into an SVG node, we first **thin** the data: keep all the interesting hits plus
+a small random sample of the null background. This keeps the widget snappy while
+leaving every peak intact.
+
+```{r int-manhattan, eval = requireNamespace("ggiraph", quietly = TRUE), fig.width = 8}
+set.seed(1)
+keep <- gwas_example$P < 1e-3 | runif(nrow(gwas_example)) < 0.15
+gwas_manhattan(gwas_example[keep, ], highlight = highlight_top(top_n = 6),
                interactive = TRUE)
 ```
+
+### Interactive circular
+
+The tooltips are per ring, so a hovered point also tells you **which trait** it
+belongs to. Here we use a small simulated dataset so the widget stays light ---
+interactive SVGs grow with the number of points, so prefer to thin very dense
+data first (see the note below).
+
+```{r int-circular, eval = requireNamespace("ggiraph", quietly = TRUE), fig.width = 7, fig.height = 6.5}
+demo <- simulate_gwas(n_chr = 12, snps_per_chr = 120,
+                      traits = c("trait A", "trait B"), seed = 11)
+gwas_circular(demo, highlight = highlight_top(top_n = 1, by = "trait"),
+              interactive = TRUE)
+```
+
+### Interactive single chromosome
+
+Zooming into a region and hovering is a quick way to inspect a locus:
+
+```{r int-chrom, eval = requireNamespace("ggiraph", quietly = TRUE), fig.width = 7}
+gwas_chromosome(gwas_example, chr = 1, highlight = highlight_top(top_n = 3),
+                interactive = TRUE)
+```
+
+> **Keeping widgets fast.** Each point becomes an SVG node, so a genome-wide
+> interactive plot of millions of SNPs can be slow or crash the browser. For
+> large studies, either draw a static plot, or thin the non-significant points
+> before making the plot interactive --- for example keep every hit with
+> `P < 0.01` plus a random 5% of the rest. A dedicated down-sampling helper for
+> very large GWAS is on the roadmap.
 
 ## Top-markers table
 

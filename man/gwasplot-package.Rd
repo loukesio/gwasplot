@@ -12,6 +12,7 @@ A ggplot2-based toolkit for visualising genome-wide association study (GWAS) res
 Useful links:
 \itemize{
   \item \url{https://github.com/loukesio/gwasplot}
+  \item \url{https://loukesio.github.io/gwasplot/}
   \item Report bugs at \url{https://github.com/loukesio/gwasplot/issues}
 }
 
